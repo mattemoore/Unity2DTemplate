@@ -1,32 +1,52 @@
+using Animancer;
+using Animancer.FSM;
 using EditorAttributes;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+namespace Assets.Scripts
 {
-    [SerializeField, Clamp(0.1f, 10.0f), Tooltip("The speed of the player.")]
-    private float _moveSpeed = 2.0f;
-       
-    public void MoveRight()
+    [RequireComponent(typeof(NamedAnimancerComponent))]
+    public class PlayerController : MonoBehaviour
     {
-        // Debug.Log("MoveRight called on " + gameObject.name);
-        transform.position += _moveSpeed * Time.deltaTime * Vector3.right;
-    }
+        [SerializeField]
+        private AnimancerComponent _Animancer;
+        public AnimancerComponent Animancer => _Animancer;
 
-    public void MoveLeft()
-    {
-        // Debug.Log("MoveLeft called on " + gameObject.name);
-         transform.position += _moveSpeed * Time.deltaTime * Vector3.left;
-    }
+        [SerializeField]
+        private StateMachine<PlayerState>.WithDefault _StateMachine;
+        public StateMachine<PlayerState>.WithDefault StateMachine => _StateMachine;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
-    {
-        
-    }
+        [SerializeField, Clamp(0.1f, 10.0f), Tooltip("The speed of the player.")]
+        private float _playerMoveSpeed = 2.0f;
+        public float PlayerMoveSpeed => _playerMoveSpeed;
 
-    // Update is called once per frame
-    private void Update()
-    {
-        
+        public void MoveRight()
+        {
+            // Debug.Log("MoveRight called on " + gameObject.name);
+            transform.position += _playerMoveSpeed * Time.deltaTime * Vector3.right;
+        }
+
+        public void MoveLeft()
+        {
+            // Debug.Log("MoveLeft called on " + gameObject.name);
+            transform.position += _playerMoveSpeed * Time.deltaTime * Vector3.left;
+        }
+
+        protected virtual void Awake()
+        {
+            _StateMachine.InitializeAfterDeserialize();
+        }
+
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        private void Start()
+        {
+
+        }
+
+        // Update is called once per frame
+        private void Update()
+        {
+
+        }
     }
 }

@@ -517,7 +517,10 @@ GameObject:
   - component: {fileID: 1625183795}
   - component: {fileID: 1625183799}
   - component: {fileID: 1625183798}
-  - component: {fileID: 1625183801}
+  - component: {fileID: 1625183803}
+  - component: {fileID: 1625183804}
+  - component: {fileID: 1625183805}
+  - component: {fileID: 1625183806}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -644,8 +647,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea8ae0acc81671c4caadd6b287fcb7b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveSpeed: 2
---- !u!114 &1625183801
+  _Animancer: {fileID: 1625183803}
+  _StateMachine:
+    _CurrentState: {fileID: 1625183804}
+    _DefaultState: {fileID: 1625183804}
+  _playerMoveSpeed: 2
+--- !u!114 &1625183803
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -654,9 +661,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 1625183794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fdccd7b4a4dbcb4cb6aec5033898f62, type: 3}
+  m_Script: {fileID: 11500000, guid: c75c0dcb6d50eb64abd727a90406ca2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _Animator: {fileID: 1625183795}
+  _Transitions: {fileID: 0}
+  _ActionOnDisable: 0
+  _PlayAutomatically: 1
+  _Animations: []
+--- !u!114 &1625183804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625183794}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b890a17a39dc8048a86fb97e9998511, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerController: {fileID: 1625183799}
+  _Animation: {fileID: 7400000, guid: 53b5a1cb351cf5f459b22160c124f084, type: 2}
+--- !u!114 &1625183805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625183794}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d70d31abf6a2170408703919a4b29636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerController: {fileID: 1625183799}
+  _Animation: {fileID: 7400000, guid: 5cd366992d1ba4b4f8053a48a52343f0, type: 2}
+--- !u!114 &1625183806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625183794}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 168391e1a9fa60745b6f80b51163e558, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerController: {fileID: 1625183799}
+  _Animation: {fileID: 7400000, guid: f1efd45fe06f2214abcf8bdd592cdff2, type: 2}
 --- !u!1 &1918605604
 GameObject:
   m_ObjectHideFlags: 0

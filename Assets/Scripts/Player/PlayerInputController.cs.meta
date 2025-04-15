@@ -6,6 +6,7 @@ MonoImporter:
   defaultReferences:
   - _attackAction: {instanceID: 0}
   - _moveAction: {instanceID: 0}
+  - _pauseAction: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

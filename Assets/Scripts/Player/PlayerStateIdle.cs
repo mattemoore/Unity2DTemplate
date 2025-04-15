@@ -1,56 +1,18 @@
-﻿using System;
 using UnityEngine;
+using Animancer;
+using Animancer.FSM;
 
 namespace Assets.Scripts
 {
     public class PlayerStateIdle : PlayerState
     {
-        public PlayerStateIdle(PlayerStateController playerStateController) : base(playerStateController)
-        {
-        }
+        [SerializeField]
+        private AnimationClip _Animation;
 
-        public override void OnCollisionEnter(Collision collision)
+        protected virtual void OnEnable()
         {
-
-        }
-
-        public override void OnEnter()
-        {
-            // Debug.Log($"Entering {this} state.");
-            PlayerInputController.MoveButtonPressed += MoveButtonPressedEventHandler;
-            PlayerInputController.AttackButtonPressed += AttackButtonPressedEventHandler;
-            PlayerAnimator.speed = 1f;
-            PlayerAnimator.CrossFade("Idle", 0.0f, -1, 0.0f);
-        }
-
-        public override void OnExit()
-        {
-            PlayerInputController.MoveButtonPressed -= MoveButtonPressedEventHandler;
-            PlayerInputController.AttackButtonPressed -= AttackButtonPressedEventHandler;
-        }
-
-        public override void UpdateState()
-        {
-            // Debug.Log($"Updating {this} state.");
-        }
-
-        public override string ToString()
-        {
-            return "Idle";
-        }
-
-        private void AttackButtonPressedEventHandler()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void MoveButtonPressedEventHandler(InputMoveDirection moveDirection)
-        {
-            if (moveDirection != InputMoveDirection.None)
-            {
-                PlayerStateMoving moveState = new PlayerStateMoving(StateController, moveDirection);
-                StateController.ChangeState(moveState);
-            }
+            AnimancerState state = PlayerController.Animancer.Play(_Animation);
+            state.Events(this).OnEnd ??= PlayerController.StateMachine.ForceSetDefaultState;
         }
     }
 }
