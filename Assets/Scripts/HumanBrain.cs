@@ -41,6 +41,7 @@ namespace Assets.Scripts
 
         public static event Action PauseButtonPressed;
         public static event Action<CharacterMovementDirection> MoveEvent;
+        // TODO: Make this one event with a parameter for the attack type, create an attack type enum in CharacterController like CharacterMovementDirection
         public static event Action Attack1Event;
         public static event Action Attack2Event;
         public static event Action Attack3Event;
