@@ -15,12 +15,12 @@ public class GameController : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerInputController.PauseButtonPressed += PauseButtonPressedEventHandler;
+        HumanBrain.PauseButtonPressed += PauseButtonPressedEventHandler;
     }
 
     private void OnDisable()
     {
-        PlayerInputController.PauseButtonPressed -= PauseButtonPressedEventHandler;
+        HumanBrain.PauseButtonPressed -= PauseButtonPressedEventHandler;
     }
 
     private void PauseButtonPressedEventHandler()
@@ -40,7 +40,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        
+        PlayStarted?.Invoke();
     }
 
     private void Update()

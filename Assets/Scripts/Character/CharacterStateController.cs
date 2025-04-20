@@ -3,16 +3,19 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    [RequireComponent(typeof(PlayerController))]
-    public class PlayerStateController : MonoBehaviour
+    [RequireComponent(typeof(CharacterController))]
+    public class CharacterStateController : MonoBehaviour
     {
-        public PlayerState CurrentState { get; internal set; }
-        internal PlayerController PlayerController { get; private set; }
+        // I think that after domain reloading after a script is updated references to non-Unity objects are null,
+        // Start is not called after domain reload in this case.  But playing and stoping and playing domain reloads are fine.
+        private CharacterState CurrentState;
+
+        internal CharacterController PlayerController { get; private set; }
         internal float DeltaTimeSinceLastUpdate { get; private set; }
-        
-        public static event Action<PlayerController, PlayerState> OnChangeState;
-        
-        public void ChangeState(PlayerState newState)
+
+        public static event Action<CharacterController, CharacterState> OnChangeState;
+
+        public void ChangeState(CharacterState newState)
         {
             CurrentState.OnExit();
             newState.OnEnter();
@@ -20,15 +23,16 @@ namespace Assets.Scripts
             OnChangeState?.Invoke(PlayerController, newState);
         }
 
-        private void OnEnable()
+        private void Awake()
         {
-            PlayerController = GetComponent<PlayerController>();
+           
         }
 
         private void Start()
         {
-            CurrentState = new PlayerStateIdle(this);
-            ChangeState(CurrentState);
+            PlayerController = GetComponent<CharacterController>();
+            CurrentState = new CharacterStateIdle(this);
+            this.ChangeState(CurrentState);
         }
 
         // NOTE: This is placed in LateUpdate to ensure that all AI updates are processed first,
