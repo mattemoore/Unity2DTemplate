@@ -5,6 +5,8 @@
 /// </summary>
 
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,46 +25,39 @@ namespace Assets.Scripts
         None
     }
 
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Character))]
     public class HumanBrain : MonoBehaviour
     {
         [SerializeField, Tooltip("Attack 1 input action.")]
-        private InputActionReference _attack1Action;
+        private InputActionReference _action1;
         [SerializeField, Tooltip("Attack 2 input action.")]
-        private InputActionReference _attack2Action;
+        private InputActionReference _action2;
         [SerializeField, Tooltip("Attack 3 input action.")]
-        private InputActionReference _attack3Action;
+        private InputActionReference _action3;
         [SerializeField, Tooltip("Attack 4 input action.")]
-        private InputActionReference _attack4Action;
+        private InputActionReference _action4;
         [SerializeField, Tooltip("Move input action.")]
         private InputActionReference _moveAction;
         [SerializeField, Tooltip("Pause input action.")]
         private InputActionReference _pauseAction;
 
         public static event Action PauseButtonPressed;
-        public static event Action<CharacterMovementDirection> MoveEvent;
-        // TODO: Make this one event with a parameter for the attack type, create an attack type enum in CharacterController like CharacterMovementDirection
-        public static event Action Attack1Event;
-        public static event Action Attack2Event;
-        public static event Action Attack3Event;
-        public static event Action Attack4Event;
 
         private bool _pollContinuousInputs = false;
-        private CharacterController _characterContoller;
+        private Character _character;
+        private CharacterStateMachine _characterStateMachine;
+        private bool _action1WasActive;
 
         private void Start()
         {
-            _characterContoller = GetComponent<CharacterController>();
+            _character = GetComponent<Character>();
+            _characterStateMachine = GetComponent<CharacterStateMachine>();
         }
 
         private void OnEnable()
         {
             GameController.PlayStopped += PlayStoppedEventHandler;
             GameController.PlayStarted += PlayStartedEventHandler;
-            _attack1Action.action.performed += AttackButton1PressedEventHandler;
-            _attack2Action.action.performed += AttackButton2PressedEventHandler;
-            _attack3Action.action.performed += AttackButton3PressedEventHandler;
-            _attack4Action.action.performed += AttackButton4PressedEventHandler;
             _pauseAction.action.performed += PauseButtonPressedEventHandler;
         }
 
@@ -70,10 +65,6 @@ namespace Assets.Scripts
         {
             GameController.PlayStopped -= PlayStoppedEventHandler;
             GameController.PlayStarted -= PlayStartedEventHandler;
-            _attack1Action.action.performed -= AttackButton1PressedEventHandler;
-            _attack2Action.action.performed -= AttackButton2PressedEventHandler;
-            _attack3Action.action.performed -= AttackButton3PressedEventHandler;
-            _attack4Action.action.performed -= AttackButton4PressedEventHandler;
             _pauseAction.action.performed -= PauseButtonPressedEventHandler;
         }
 
@@ -81,35 +72,43 @@ namespace Assets.Scripts
         {
             if (_pollContinuousInputs)
             {
+                // Get movement direction
                 Vector2 moveVector = _moveAction.action.ReadValue<Vector2>();
                 Vector2 quantizedMovedVector = QuantizeVector(moveVector);
                 InputMovementDirection inputDirection = quantizedMovedVector != Vector2.zero
-                    ? GetInputMovemnetDirection(quantizedMovedVector)
+                    ? GetInputMovementDirection(quantizedMovedVector)
                     : InputMovementDirection.None;
                 CharacterMovementDirection characterMoveDirection = GetCharacterMovementDirection(inputDirection);
-                MoveEvent?.Invoke(characterMoveDirection);
+
+                // Get buttons pressed
+                bool action1IsActive = _action1.action.ReadValue<float>() > 0;
+                CharacterAction characterAction = CharacterAction.None;
+                if (action1IsActive && !_action1WasActive)
+                {
+                    characterAction = CharacterAction.Action1;
+                    Debug.Log("Action1 invoked...");
+                }
+                _action1WasActive = action1IsActive;
+
+                // Find a move that matches the combination of input direction and button pressed
+                CharacterMove move = _character.Attributes.Moves.Find(move => move.TriggerDirection == characterMoveDirection && move.TriggerAction == characterAction);
+                if (!move.Equals(default(CharacterMove)))
+                {
+                    // Convert move found to state and update state if appropriate
+                    if (move.State == CharacterMoveState.Attack)
+                    {
+                        _characterStateMachine.ChangeState(new CharacterStateAttacking(_characterStateMachine, move));
+                    }
+                    else if (move.State == CharacterMoveState.Movement)
+                    {
+                        _characterStateMachine.ChangeState(new CharacterStateMoving(_characterStateMachine, move));
+                    }
+                    else // idle
+                    {
+                        _characterStateMachine.ChangeToDefaultState();
+                    }
+                }
             }
-        }
-
-        // InputAction events emit PlayerInputController events
-        private void AttackButton1PressedEventHandler(InputAction.CallbackContext context)
-        {
-            Attack1Event?.Invoke();
-        }
-
-        private void AttackButton2PressedEventHandler(InputAction.CallbackContext context)
-        {
-            Attack2Event?.Invoke();
-        }
-
-        private void AttackButton3PressedEventHandler(InputAction.CallbackContext context)
-        {
-            Attack3Event?.Invoke();
-        }
-
-        private void AttackButton4PressedEventHandler(InputAction.CallbackContext context)
-        {
-            Attack4Event?.Invoke();
         }
 
         private void PauseButtonPressedEventHandler(InputAction.CallbackContext context)
@@ -120,23 +119,11 @@ namespace Assets.Scripts
         // GameController events
         private void PlayStartedEventHandler()
         {
-            _pauseAction.action.Enable();
-            _moveAction.action.Enable();
-            _attack1Action.action.Enable();
-            _attack2Action.action.Enable();
-            _attack3Action.action.Enable();
-            _attack4Action.action.Enable();
             _pollContinuousInputs = true;
         }
 
         private void PlayStoppedEventHandler()
         {
-            _pauseAction.action.Disable();
-            _moveAction.action.Disable();
-            _attack1Action.action.Disable();
-            _attack2Action.action.Disable();
-            _attack3Action.action.Disable();
-            _attack4Action.action.Disable();
             _pollContinuousInputs = false;
         }
 
@@ -145,13 +132,13 @@ namespace Assets.Scripts
             return new Vector2((int)Mathf.Round(vectorToQuantize.x), (int)Mathf.Round(vectorToQuantize.y));
         }
 
-        private static InputMovementDirection GetInputMovemnetDirection(Vector2 quantizedVector)
+        private static InputMovementDirection GetInputMovementDirection(Vector2 quantizedVector)
         {
             float quantized_move_x = quantizedVector.x;
             float quantized_move_y = quantizedVector.y;
             if ((quantized_move_x != 0 && quantized_move_x != 1 && quantized_move_x != -1) || (quantized_move_y != 0 && quantized_move_y != 1 && quantized_move_y != -1))
             {
-                throw new System.ArgumentOutOfRangeException("Quantized move vector values must be 0, 1 or -1.");
+                throw new ArgumentOutOfRangeException("Quantized move vector values must be 0, 1 or -1.");
             }
 
             if (quantized_move_x == 1 && quantized_move_y == 1) return InputMovementDirection.UpRight;
@@ -177,7 +164,7 @@ namespace Assets.Scripts
             }
             else if (inputDirection == InputMovementDirection.Left || inputDirection == InputMovementDirection.Right)
             {
-                CharacterFacingDirection facingDirection = _characterContoller.FacingDirection;
+                CharacterFacingDirection facingDirection = _character.FacingDirection;
                 if (facingDirection == CharacterFacingDirection.Right)
                 {
                     characterMoveDirection = inputDirection == InputMovementDirection.Left ? CharacterMovementDirection.Backward : CharacterMovementDirection.Forward;

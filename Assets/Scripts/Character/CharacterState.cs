@@ -3,16 +3,21 @@ namespace Assets.Scripts
 {
     public abstract class CharacterState
     {
-        protected CharacterStateController StateController { get; private set; }
-        protected CharacterController CharacterController { get; private set; }
-        protected Animator CharacterAnimator { get; private set; }
-
-        public CharacterState(CharacterStateController stateController)
+        public readonly CharacterStateMachine StateController;
+        public Character Character => StateController.Character;
+        public readonly Animator CharacterAnimator; 
+        public readonly CharacterMove CharacterMove; 
+        public readonly bool IsInterruptible;
+        
+        public CharacterState(CharacterStateMachine stateController, CharacterMove characterMove, bool isInterruptible)
         {
+            CharacterMove = characterMove;
             StateController = stateController;
-            CharacterController = stateController.PlayerController;
-            CharacterAnimator = CharacterController.GetComponent<Animator>();
+            CharacterAnimator = Character.GetComponent<Animator>();
+            CharacterMove = characterMove;
+            IsInterruptible = isInterruptible;
         }
+
         // Since PlayerStateController ChangeState() is called from another state's
         // UpdateStateMethod(), the current state's Update method is not called on first frame of state
         // transition.  Therefore any init or 1st frame logic should go into OnEnter().
@@ -33,16 +38,25 @@ namespace Assets.Scripts
 
         public abstract void OnCollisionEnter(Collision collision);
 
-        public bool IsAnimationFinished(string animationName)
+        public void PlayAnimation()
         {
-            AnimatorStateInfo stateInfo = CharacterAnimator.GetCurrentAnimatorStateInfo(0);
-            return stateInfo.IsName(animationName) && stateInfo.normalizedTime >= 0.99999f;
+            int speedMult = CharacterMove.AnimationDirection == CharacterMoveAnimationDirection.Normal ? 1 : -1;
+            float animationStart = CharacterMove.AnimationDirection == CharacterMoveAnimationDirection.Normal ? 0 : 1;
+            CharacterAnimator.SetFloat(Animator.StringToHash("AnimationSpeed"), CharacterMove.AnimationSpeed * speedMult);
+            CharacterAnimator.speed = 1.0f;
+            CharacterAnimator.CrossFade(CharacterMove.AnimationName, 0.0f, -1, animationStart);
         }
 
-        public int GetCurrentAnimationFrame(string animationName)
+        public bool IsAnimationFinished()
         {
             AnimatorStateInfo stateInfo = CharacterAnimator.GetCurrentAnimatorStateInfo(0);
-            if (stateInfo.IsName(animationName))
+            return stateInfo.IsName(CharacterMove.AnimationName) && stateInfo.normalizedTime >= 0.99999f;
+        }
+
+        public int GetCurrentAnimationFrame()
+        {
+            AnimatorStateInfo stateInfo = CharacterAnimator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName(CharacterMove.AnimationName))
             {
                 float frame = stateInfo.normalizedTime * stateInfo.length * CharacterAnimator.runtimeAnimatorController.animationClips[0].frameRate;
                 return Mathf.RoundToInt(frame);
