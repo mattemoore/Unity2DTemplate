@@ -4,10 +4,9 @@ using System;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private GameObject Player1;
-    [SerializeField] private GameObject Player2;
-    [SerializeField, Tooltip("Attack input action.")]
-
+    public Character Player1;
+    public Character Player2;
+   
     public static event Action PlayStarted;
     public static event Action PlayStopped;
 

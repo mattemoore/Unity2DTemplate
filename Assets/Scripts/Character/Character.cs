@@ -1,4 +1,3 @@
-using EditorAttributes;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -12,7 +11,7 @@ namespace Assets.Scripts
         None
     }
 
-    public enum CharacterAction 
+    public enum CharacterAction
     {
         Action1,
         Action2,
@@ -21,16 +20,14 @@ namespace Assets.Scripts
         None
     }
 
-    public enum CharacterFacingDirection
-    {
-        Left,
-        Right
-    }
-
+    [RequireComponent(typeof(SpriteRenderer))]
     public class Character : MonoBehaviour
     {
-        public CharacterFacingDirection FacingDirection { get; private set; }
-        public CharacterAttributes Attributes { get; private set; }
+        // TODO: Change this to a bool and fix animations running opposite for enemy
+        public bool IsFacingRight = true;
+        public CharacterAttributes Attributes;
+
+        private SpriteRenderer _spriteRenderer;
 
         public void Move(CharacterMovementDirection moveDirection, float speedMultiplier = 1.0f)
         {
@@ -39,20 +36,30 @@ namespace Assets.Scripts
                 Debug.LogError("Invalid move direction.");
                 return;
             }
-
-            Vector3 direction = (moveDirection == CharacterMovementDirection.Forward) 
-                ? (FacingDirection == CharacterFacingDirection.Right ? Vector3.right : Vector3.left) 
-                : (FacingDirection == CharacterFacingDirection.Right ? Vector3.left : Vector3.right);
+            
+            Vector3 direction = moveDirection == CharacterMovementDirection.Forward == IsFacingRight 
+                ? Vector3.right 
+                : Vector3.left;
             transform.position += Attributes.Speed * speedMultiplier * Time.deltaTime * direction;
+        }
+
+        public void Flip()
+        {
+            _spriteRenderer.flipX = !_spriteRenderer.flipX;
+        }
+
+        private void Awake()
+        {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+            Attributes = new KarateMan();
+            if (!IsFacingRight)
+                Flip();
         }
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         private void Start()
         {
-            FacingDirection = CharacterFacingDirection.Right;
 
-            // TODO: Make this reusable
-            Attributes = new KarateMan();
         }
 
         // Update is called once per frame

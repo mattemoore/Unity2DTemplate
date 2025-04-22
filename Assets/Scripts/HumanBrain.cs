@@ -161,21 +161,14 @@ namespace Assets.Scripts
             else if (inputDirection == InputMovementDirection.Down)
             {
                 characterMoveDirection = CharacterMovementDirection.Duck;
-            }
-            else if (inputDirection == InputMovementDirection.Left || inputDirection == InputMovementDirection.Right)
-            {
-                CharacterFacingDirection facingDirection = _character.FacingDirection;
-                if (facingDirection == CharacterFacingDirection.Right)
+                }
+                else if (inputDirection == InputMovementDirection.Left || inputDirection == InputMovementDirection.Right)
                 {
-                    characterMoveDirection = inputDirection == InputMovementDirection.Left ? CharacterMovementDirection.Backward : CharacterMovementDirection.Forward;
+                    bool movingInFacingDirection = inputDirection == InputMovementDirection.Right == _character.IsFacingRight;
+                    characterMoveDirection = movingInFacingDirection ? CharacterMovementDirection.Forward : CharacterMovementDirection.Backward;
                 }
                 else
                 {
-                    characterMoveDirection = inputDirection == InputMovementDirection.Right ? CharacterMovementDirection.Backward : CharacterMovementDirection.Forward;
-                }
-            }
-            else
-            {
                 characterMoveDirection = CharacterMovementDirection.None;
             }
 
