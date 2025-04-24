@@ -27,7 +27,6 @@ namespace Assets.Scripts
 
         public override void UpdateState()
         {
-            // Debug.Log($"Updating {this} state with direction {_currentDirection}.");
             Character.Move(CharacterMove.TriggerDirection, CharacterMove.MovementSpeedMultiplier);
         }
 

@@ -46,13 +46,13 @@ namespace Assets.Scripts
                 Debug.Log($"Distance between characters: {distanceBetweenCharacters}");
                 
                 // Front kick if player is within 3 units of distance
-                CharacterMove move = default;
+                CharacterMove move = null;
                 if (distanceBetweenCharacters < 3.0f)
                 {
                     move = _character.Attributes.Moves.Find(m => m.Name == "Front Kick");
                 }
 
-                if (!move.Equals(default(CharacterMove)))
+                if (move != null)
                 {
                     CharacterStateMachine.SendMoveToStateMachine(move, _characterStateMachine);
                 }

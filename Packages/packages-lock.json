@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.singularitygroup.hotreload": {
+      "version": "file:com.singularitygroup.hotreload",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "10.1.4",
       "depth": 1,
@@ -143,17 +152,8 @@
         "com.unity.2d.aseprite": "1.1.6"
       }
     },
-    "com.unity.ide.rider": {
-      "version": "3.0.31",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ext.nunit": "1.0.6"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.22",
+      "version": "2.0.23",
       "depth": 0,
       "source": "registry",
       "dependencies": {

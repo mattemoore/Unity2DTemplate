@@ -87,12 +87,11 @@ namespace Assets.Scripts
 
                 // Find a move that matches the combination of input direction and button pressed
                 CharacterMove move = _character.Attributes.Moves.Find(move => move.TriggerDirection == characterMoveDirection && move.TriggerAction == characterAction);
-                if (!move.Equals(default(CharacterMove)))
+                if (move != null)
                 {
                     CharacterStateMachine.SendMoveToStateMachine(move, _characterStateMachine);
                 }
             }
-
             // TODO: Store the movement direction and button combo into a history for future replay feature
         }
 

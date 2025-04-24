@@ -6,7 +6,7 @@ public class GameController : MonoBehaviour
 {
     public Character Player1;
     public Character Player2;
-    
+
     public float MinDistanceBetweenCharacters = 0.5f;
 
     public float DistanceBetweenCharacters { get; private set; }
@@ -28,17 +28,17 @@ public class GameController : MonoBehaviour
 
     private void PauseButtonPressedEventHandler()
     {
-       _isPaused = !_isPaused;
-       if (_isPaused)
-       {
-           PlayStarted?.Invoke();
-           Time.timeScale = 0f; // Pause the game
-       }
-       else
-       {
-           PlayStopped?.Invoke();
-           Time.timeScale = 1f; // Unpause the game
-       }
+        _isPaused = !_isPaused;
+        if (_isPaused)
+        {
+            PlayStarted?.Invoke();
+            Time.timeScale = 0f; // Pause the game
+        }
+        else
+        {
+            PlayStopped?.Invoke();
+            Time.timeScale = 1f; // Unpause the game
+        }
     }
 
     private void Start()
@@ -55,7 +55,7 @@ public class GameController : MonoBehaviour
 
     private void LateUpdate()
     {
-
+        UpdateSensors();
     }
 
     private void UpdateSensors()

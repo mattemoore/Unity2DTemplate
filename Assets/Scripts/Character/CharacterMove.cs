@@ -15,22 +15,21 @@ namespace Assets.Scripts
         Reverse
     }
     
-    // TODO: Convert this to a class, structs are dumb in C#
-    public struct CharacterMove
+    public class CharacterMove
     {
-        public string Name;
-        public CharacterMoveState State;
-        public CharacterMovementDirection TriggerDirection;
-        public CharacterAction TriggerAction;
-        public string AnimationName;
-        public float AnimationSpeed;
-        public CharacterMoveAnimationDirection AnimationDirection;
-        public bool IsFeintable;
-        public int LastFeintFrame;
-        public CharacterMovementDirection MovementDirection;
-        public int MovementStartFrame;
-        public int MovementEndFrame;
-        public float MovementSpeedMultiplier;
+        public string Name { get; set; }
+        public CharacterMoveState State { get; set; }
+        public CharacterMovementDirection TriggerDirection { get; set; }
+        public CharacterAction TriggerAction { get; set; }
+        public string AnimationName { get; set; }
+        public float AnimationSpeed { get; set; }
+        public CharacterMoveAnimationDirection AnimationDirection { get; set; }
+        public bool IsFeintable { get; set; }
+        public int LastFeintFrame { get; set; }
+        public CharacterMovementDirection MovementDirection { get; set; }
+        public int MovementStartFrame { get; set; }
+        public int MovementEndFrame { get; set; }
+        public float MovementSpeedMultiplier { get; set; }
         
         public override string ToString()
         {
