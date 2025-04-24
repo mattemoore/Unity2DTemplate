@@ -41,6 +41,23 @@ namespace Assets.Scripts
             SetState(GetDefaultState());
         }
 
+        public static void SendMoveToStateMachine(CharacterMove move, CharacterStateMachine characterStateMachine)
+        {
+            // Convert move found to state and update state if appropriate
+            if (move.State == CharacterMoveState.Attack)
+            {
+                characterStateMachine.ChangeState(new CharacterStateAttacking(characterStateMachine, move));
+            }
+            else if (move.State == CharacterMoveState.Movement)
+            {
+                characterStateMachine.ChangeState(new CharacterStateMoving(characterStateMachine, move));
+            }
+            else // idle
+            {
+                characterStateMachine.ChangeToDefaultState();
+            }
+        }
+
         private bool CanChangeState(CharacterState newState)
         {
             if (!CurrentState.IsInterruptible) return false;

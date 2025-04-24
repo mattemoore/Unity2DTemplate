@@ -24,7 +24,7 @@ namespace Assets.Scripts
     }
 
     [RequireComponent(typeof(Character))]
-    public class HumanBrain : Brain
+    public class HumanBrain : MonoBehaviour
     {
         [SerializeField, Tooltip("Attack 1 input action.")]
         private InputActionReference _action1;
@@ -89,7 +89,7 @@ namespace Assets.Scripts
                 CharacterMove move = _character.Attributes.Moves.Find(move => move.TriggerDirection == characterMoveDirection && move.TriggerAction == characterAction);
                 if (!move.Equals(default(CharacterMove)))
                 {
-                    SendMoveToStateMachine(move);
+                    CharacterStateMachine.SendMoveToStateMachine(move, _characterStateMachine);
                 }
             }
 
@@ -167,23 +167,6 @@ namespace Assets.Scripts
                 characterMoveDirection = CharacterMovementDirection.None;
             }
             return characterMoveDirection;
-        }
-
-        private void SendMoveToStateMachine(CharacterMove move)
-        {
-            // Convert move found to state and update state if appropriate
-            if (move.State == CharacterMoveState.Attack)
-            {
-                _characterStateMachine.ChangeState(new CharacterStateAttacking(_characterStateMachine, move));
-            }
-            else if (move.State == CharacterMoveState.Movement)
-            {
-                _characterStateMachine.ChangeState(new CharacterStateMoving(_characterStateMachine, move));
-            }
-            else // idle
-            {
-                _characterStateMachine.ChangeToDefaultState();
-            }
         }
     }
 }
