@@ -15,6 +15,7 @@ namespace Assets.Scripts
         Reverse
     }
     
+    // TODO: Convert this to a class, structs are dumb in C#
     public struct CharacterMove
     {
         public string Name;

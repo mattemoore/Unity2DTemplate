@@ -6,7 +6,11 @@ public class GameController : MonoBehaviour
 {
     public Character Player1;
     public Character Player2;
-   
+    
+    public float MinDistanceBetweenCharacters = 0.5f;
+
+    public float DistanceBetweenCharacters { get; private set; }
+
     public static event Action PlayStarted;
     public static event Action PlayStopped;
 
@@ -44,6 +48,18 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        
+        // TODO: Add netcode for gameobjects, use rigibodynetworking one for collision detection
+        // to make it such that players can't walk through each other
+        UpdateSensors();
+    }
+
+    private void LateUpdate()
+    {
+
+    }
+
+    private void UpdateSensors()
+    {
+        DistanceBetweenCharacters = Vector3.Distance(Player1.transform.position, Player2.transform.position);
     }
 }

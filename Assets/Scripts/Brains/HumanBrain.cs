@@ -5,8 +5,6 @@
 /// </summary>
 
 using System;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,7 +24,7 @@ namespace Assets.Scripts
     }
 
     [RequireComponent(typeof(Character))]
-    public class HumanBrain : MonoBehaviour
+    public class HumanBrain : Brain
     {
         [SerializeField, Tooltip("Attack 1 input action.")]
         private InputActionReference _action1;
@@ -74,13 +72,10 @@ namespace Assets.Scripts
             {
                 // Get movement direction
                 Vector2 moveVector = _moveAction.action.ReadValue<Vector2>();
-                Vector2 quantizedMovedVector = QuantizeVector(moveVector);
-                InputMovementDirection inputDirection = quantizedMovedVector != Vector2.zero
-                    ? GetInputMovementDirection(quantizedMovedVector)
-                    : InputMovementDirection.None;
-                CharacterMovementDirection characterMoveDirection = GetCharacterMovementDirection(inputDirection);
+                CharacterMovementDirection characterMoveDirection = ConvertInputToMovement(moveVector);
 
                 // Get buttons pressed
+                // TODO: Refactor this into a separate method to reduce complexity, build up array of CharacterActions
                 bool action1IsActive = _action1.action.ReadValue<float>() > 0;
                 CharacterAction characterAction = CharacterAction.None;
                 if (action1IsActive && !_action1WasActive)
@@ -94,21 +89,11 @@ namespace Assets.Scripts
                 CharacterMove move = _character.Attributes.Moves.Find(move => move.TriggerDirection == characterMoveDirection && move.TriggerAction == characterAction);
                 if (!move.Equals(default(CharacterMove)))
                 {
-                    // Convert move found to state and update state if appropriate
-                    if (move.State == CharacterMoveState.Attack)
-                    {
-                        _characterStateMachine.ChangeState(new CharacterStateAttacking(_characterStateMachine, move));
-                    }
-                    else if (move.State == CharacterMoveState.Movement)
-                    {
-                        _characterStateMachine.ChangeState(new CharacterStateMoving(_characterStateMachine, move));
-                    }
-                    else // idle
-                    {
-                        _characterStateMachine.ChangeToDefaultState();
-                    }
+                    SendMoveToStateMachine(move);
                 }
             }
+
+            // TODO: Store the movement direction and button combo into a history for future replay feature
         }
 
         private void PauseButtonPressedEventHandler(InputAction.CallbackContext context)
@@ -125,6 +110,16 @@ namespace Assets.Scripts
         private void PlayStoppedEventHandler()
         {
             _pollContinuousInputs = false;
+        }
+
+        private CharacterMovementDirection ConvertInputToMovement(Vector3 moveVector)
+        {
+            Vector2 quantizedMovedVector = QuantizeVector(moveVector);
+            InputMovementDirection inputDirection = quantizedMovedVector != Vector2.zero
+                ? GetInputMovementDirection(quantizedMovedVector)
+                : InputMovementDirection.None;
+            CharacterMovementDirection characterMoveDirection = GetCharacterMovementDirection(inputDirection);
+            return characterMoveDirection;
         }
 
         private static Vector2 QuantizeVector(Vector2 vectorToQuantize)
@@ -171,8 +166,24 @@ namespace Assets.Scripts
                 {
                 characterMoveDirection = CharacterMovementDirection.None;
             }
-
             return characterMoveDirection;
+        }
+
+        private void SendMoveToStateMachine(CharacterMove move)
+        {
+            // Convert move found to state and update state if appropriate
+            if (move.State == CharacterMoveState.Attack)
+            {
+                _characterStateMachine.ChangeState(new CharacterStateAttacking(_characterStateMachine, move));
+            }
+            else if (move.State == CharacterMoveState.Movement)
+            {
+                _characterStateMachine.ChangeState(new CharacterStateMoving(_characterStateMachine, move));
+            }
+            else // idle
+            {
+                _characterStateMachine.ChangeToDefaultState();
+            }
         }
     }
 }

@@ -23,7 +23,6 @@ namespace Assets.Scripts
     [RequireComponent(typeof(SpriteRenderer))]
     public class Character : MonoBehaviour
     {
-        // TODO: Change this to a bool and fix animations running opposite for enemy
         public bool IsFacingRight = true;
         public CharacterAttributes Attributes;
 

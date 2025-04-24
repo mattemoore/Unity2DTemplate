@@ -62,7 +62,6 @@ namespace Assets.Scripts
 
         private CharacterState GetDefaultState()
         {
-            Debug.Log("Getting default state");
             return new CharacterStateIdle(this, Character.Attributes.Moves.Find(m => m.TriggerDirection == CharacterMovementDirection.None));
         }
 
