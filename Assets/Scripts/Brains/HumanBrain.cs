@@ -1,9 +1,3 @@
-/// <summary>
-/// PlayerInputController.cs
-/// This script processes player input every frame and emits events as needed.
-/// A move direction event is emitted every frame.  Attack and pause events are emitted when the corresponding buttons are pressed.
-/// </summary>
-
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -45,11 +39,13 @@ namespace Assets.Scripts
         private Character _character;
         private CharacterStateMachine _characterStateMachine;
         private bool _action1WasActive;
+        private CharacterMove _idleMove;
 
         private void Start()
         {
             _character = GetComponent<Character>();
             _characterStateMachine = GetComponent<CharacterStateMachine>();
+            _idleMove = _character.Attributes.Moves.Find(m => m.TriggerDirection == CharacterMovementDirection.None);
         }
 
         private void OnEnable()
@@ -91,8 +87,12 @@ namespace Assets.Scripts
                 {
                     CharacterStateMachine.SendMoveToStateMachine(move, _characterStateMachine);
                 }
+                // TODO: Store the movement direction and button combo into a history for future replay feature
             }
-            // TODO: Store the movement direction and button combo into a history for future replay feature
+            else
+            {
+                CharacterStateMachine.SendMoveToStateMachine(_idleMove, _characterStateMachine);
+            }
         }
 
         private void PauseButtonPressedEventHandler(InputAction.CallbackContext context)
@@ -155,14 +155,14 @@ namespace Assets.Scripts
             else if (inputDirection == InputMovementDirection.Down)
             {
                 characterMoveDirection = CharacterMovementDirection.Duck;
-                }
-                else if (inputDirection == InputMovementDirection.Left || inputDirection == InputMovementDirection.Right)
-                {
-                    bool movingInFacingDirection = inputDirection == InputMovementDirection.Right == _character.IsFacingRight;
-                    characterMoveDirection = movingInFacingDirection ? CharacterMovementDirection.Forward : CharacterMovementDirection.Backward;
-                }
-                else
-                {
+            }
+            else if (inputDirection == InputMovementDirection.Left || inputDirection == InputMovementDirection.Right)
+            {
+                bool movingInFacingDirection = inputDirection == InputMovementDirection.Right == _character.IsFacingRight;
+                characterMoveDirection = movingInFacingDirection ? CharacterMovementDirection.Forward : CharacterMovementDirection.Backward;
+            }
+            else
+            {
                 characterMoveDirection = CharacterMovementDirection.None;
             }
             return characterMoveDirection;

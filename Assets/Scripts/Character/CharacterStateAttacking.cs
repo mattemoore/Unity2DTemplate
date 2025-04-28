@@ -28,8 +28,6 @@ namespace Assets.Scripts
         public override void UpdateState()
         {
             int currentFrame = GetCurrentAnimationFrame();
-            Debug.Log($"Current frame:{currentFrame}");
-
             if (CharacterMove.TriggerDirection != CharacterMovementDirection.None)
             {
             if (currentFrame >= CharacterMove.MovementStartFrame && currentFrame <= CharacterMove.MovementEndFrame  )

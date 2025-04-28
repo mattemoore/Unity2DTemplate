@@ -10,7 +10,7 @@ namespace Assets.Scripts
     {
         // I think that after domain reloading after a script is updated references to non-Unity objects are null,
         // Start is not called after domain reload in this case.  But playing and stoping and playing domain reloads are fine.
-        private CharacterState CurrentState;
+        public CharacterState CurrentState { get; private set;}
         internal Character Character { get; private set; }
         internal float DeltaTimeSinceLastUpdate { get; private set; }
 

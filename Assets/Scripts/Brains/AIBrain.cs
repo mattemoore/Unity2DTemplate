@@ -43,7 +43,6 @@ namespace Assets.Scripts
             {
                 // Update sensor data
                 float distanceBetweenCharacters = _gameController.DistanceBetweenCharacters;
-                Debug.Log($"Distance between characters: {distanceBetweenCharacters}");
                 
                 // Front kick if player is within 3 units of distance
                 CharacterMove move = null;
@@ -58,6 +57,7 @@ namespace Assets.Scripts
                 }
 
                 // TODO: Store the movement direction and button combo into a history for future replay feature
+                // TODO: Replay game
             }
         }
 

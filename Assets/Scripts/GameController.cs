@@ -1,20 +1,36 @@
 using UnityEngine;
 using Assets.Scripts;
 using System;
+using System.Collections;
 
 public class GameController : MonoBehaviour
 {
     public Character Player1;
     public Character Player2;
-
     public float MinDistanceBetweenCharacters = 0.5f;
+    public float RoundLengthInSeconds = 10f;
+    public int CurrentRound = 1;
+    public int NumberOfRounds = 3;
+    public float TimeBetweenRounds = 3;
 
     public float DistanceBetweenCharacters { get; private set; }
 
     public static event Action PlayStarted;
     public static event Action PlayStopped;
 
-    private bool _isPaused = false;
+    private bool _isPlayStopped, _isPaused = false;
+
+    public void StartMatch()
+    {
+        Debug.Log("Match starting!");
+        StartRound(1);
+    }
+
+    private void EndMatch()
+    {
+        Debug.Log("Match ended!");
+        StartMatch();
+    }
 
     private void OnEnable()
     {
@@ -31,31 +47,106 @@ public class GameController : MonoBehaviour
         _isPaused = !_isPaused;
         if (_isPaused)
         {
-            PlayStarted?.Invoke();
-            Time.timeScale = 0f; // Pause the game
+            ResumePlay();
         }
         else
         {
-            PlayStopped?.Invoke();
-            Time.timeScale = 1f; // Unpause the game
+            PausePlay();
         }
-    }
-
-    private void Start()
-    {
-        PlayStarted?.Invoke();
     }
 
     private void Update()
     {
-        // TODO: Add netcode for gameobjects, use rigibodynetworking one for collision detection
-        // to make it such that players can't walk through each other
-        UpdateSensors();
+        if (!_isPlayStopped)
+        {
+            UpdateSensors();
+            Debug.Log($"Updating sensors...");
+        }
     }
 
-    private void LateUpdate()
+    private void StartPlay()
     {
+        PlayStarted?.Invoke();
+        _isPlayStopped = false;
+    }
+
+    private void StopPlay()
+    {
+        PlayStopped?.Invoke();
+        _isPlayStopped = true;
+    }
+
+    private void PausePlay()
+    {
+        StopPlay();
+        Time.timeScale = 0f;
+    }
+
+    private void ResumePlay()
+    {
+        StartPlay();
+        Time.timeScale = 1.0f;
+    }
+
+    private void Start()
+    {
+        StartMatch();
+    }
+
+    private void StartRound(int roundNumber)
+    {
+        CurrentRound = roundNumber;
+
+        // Reset player positions and states
+        Player1.transform.position = new Vector3(-4.80999994f, -1.5f, 0);
+        Player2.transform.position = new Vector3(4.38999987f, -1.38f, 0);
         UpdateSensors();
+        Debug.Log($"Round {roundNumber} started!");
+
+        // Start the round timer
+        StartPlay();
+        StartCoroutine(RoundCountdownCoroutine(RoundLengthInSeconds, roundNumber));
+    }
+
+    private IEnumerator RoundCountdownCoroutine(float roundLength, int roundNumber)
+    {
+        float timer = roundLength;
+        while (timer > 0f)
+        {
+            // Optionally, update UI with timer here
+            yield return null;
+            timer -= Time.deltaTime;
+            Debug.Log($"Time left:{timer} in round number: {roundNumber}");
+        }
+        EndRound(roundNumber);
+    }
+
+    private void EndRound(int roundNumber)
+    {
+        Debug.Log($"{roundNumber} round ended!");
+        StopPlay();
+        StartCoroutine(PostRoundWait(TimeBetweenRounds, roundNumber));
+    }
+
+    private IEnumerator PostRoundWait(float waitSeconds, int roundNumber)
+    {
+        float timer = waitSeconds;
+        while (timer > 0f)
+        {
+            yield return null;
+            timer -= Time.unscaledDeltaTime;
+            Debug.Log($"Time left between rounds for round {roundNumber}: {timer}");
+        }
+
+        if (roundNumber <= NumberOfRounds - 1)
+        {
+            roundNumber += 1;
+            StartRound(roundNumber);
+        }
+        else
+        {
+            EndMatch();
+        }
     }
 
     private void UpdateSensors()
