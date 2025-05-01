@@ -7,6 +7,8 @@ public class GameController : MonoBehaviour
 {
     public Character Player1;
     public Character Player2;
+    public Vector3 Player1StartPosition = new Vector3(-2f, -1.5f, 0);
+    public Vector3 Player2StartPosition = new Vector3(2f, -1.5f, 0);
     public float MinDistanceBetweenCharacters = 0.5f;
     public float RoundLengthInSeconds = 10f;
     public int CurrentRound = 1;
@@ -98,8 +100,8 @@ public class GameController : MonoBehaviour
         CurrentRound = roundNumber;
 
         // Reset player positions and states
-        Player1.transform.position = new Vector3(-4.80999994f, -1.5f, 0);
-        Player2.transform.position = new Vector3(4.38999987f, -1.38f, 0);
+        Player1.transform.position = Player1StartPosition;
+        Player2.transform.position = Player2StartPosition;
         UpdateSensors();
         Debug.Log($"Round {roundNumber} started!");
 

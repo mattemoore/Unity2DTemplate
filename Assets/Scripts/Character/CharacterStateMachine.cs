@@ -62,8 +62,7 @@ namespace Assets.Scripts
         {
             if (!CurrentState.IsInterruptible) return false;
 
-            // Do not change state if the current move is same as incoming move
-            // ASSUMPTION: A move only applies to one state
+            // TODO TECH DEBT: If we want to do "feints" the below code will not allow it
             if (newState.CharacterMove.Name == CurrentState.CharacterMove.Name) return false;
             
             return true;
