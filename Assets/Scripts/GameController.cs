@@ -62,7 +62,6 @@ public class GameController : MonoBehaviour
         if (!_isPlayStopped)
         {
             UpdateSensors();
-            Debug.Log($"Updating sensors...");
         }
     }
 
